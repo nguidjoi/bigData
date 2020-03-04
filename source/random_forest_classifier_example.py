@@ -70,7 +70,6 @@ if __name__ == "__main__":
         .withColumn("MonthlyCharges", data["MonthlyCharges"].cast(DoubleType())) \
         .withColumn("TotalCharges", data["TotalCharges"].cast(DoubleType())) \
         .withColumn("Partner", number('Partner')) \
-        .withColumn("Dependents", number('Dependents')) \
         .withColumn("PaperlessBilling", number('PaperlessBilling')) \
         .withColumn("Churn", number('Churn')) \
         .withColumn("PhoneService", number('PhoneService')) \
