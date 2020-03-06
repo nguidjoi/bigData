@@ -2,11 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ecdb1c9-e986-4845-92e8-48b69bbd7825" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.~lock.Readme.odt#" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/source/dataHelper.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/rSettings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/source/customerChurnInData.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/source/diagrammme.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/bigData.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/bigData.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/churn.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/churn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/dataHelper.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/dataHelper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/random_forest_classifier_example.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/random_forest_classifier_example.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,8 +48,8 @@
     <property name="last_opened_file_path" value="C:/project/spark244hadoop27/python/lib/py4j-0.10.7-src.zip!/" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.dataHelper">
-    <configuration name="dataHelper" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.churn">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="bigData" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -49,13 +57,71 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="churn" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="bigData" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/source" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/churn.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="customerChurnInData" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="bigData" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/source" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/customerChurnInData.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="dataHelper" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="bigData" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="C:\Python38\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/source" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/dataHelper.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
@@ -84,10 +150,18 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.dataHelper" />
+      <item itemvalue="Python.random_forest_classifier_example" />
+      <item itemvalue="Python.customerChurnInData" />
+      <item itemvalue="Python.churn" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.dataHelper" />
+        <item itemvalue="Python.churn" />
         <item itemvalue="Python.random_forest_classifier_example" />
+        <item itemvalue="Python.customerChurnInData" />
+        <item itemvalue="Python.dataHelper" />
       </list>
     </recent_temporary>
   </component>
@@ -140,10 +214,10 @@
     <option name="LAST_COMMIT_MESSAGE" value="Ajout Documentations" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="57" y="0" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1583289731616">
+    <state x="57" y="0" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1583380866521">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state x="57" y="0" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.680@0.0.1280.680" timestamp="1583289731616" />
+    <state x="57" y="0" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.680@0.0.1280.680" timestamp="1583380866521" />
     <state x="667" y="155" width="642" height="795" key="#dataHelper" timestamp="1583303291914">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
@@ -157,30 +231,46 @@
     </state>
     <state x="382" y="99" key="FileChooserDialogImpl/0.0.1280.680@0.0.1280.680" timestamp="1583295930266" />
     <state x="620" y="180" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1583303289266" />
-    <state width="1830" height="448" key="GridCell.Tab.0.bottom" timestamp="1583303656038">
-      <screen x="67" y="27" width="1853" height="1053" />
+    <state width="1225" height="150" key="GridCell.Tab.0.bottom" timestamp="1583452547736">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state width="1237" height="163" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1583296568226" />
+    <state width="1225" height="150" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1583452547736" />
     <state width="1830" height="448" key="GridCell.Tab.0.bottom/67.27.1853.1053@67.27.1853.1053" timestamp="1583303656038" />
-    <state width="1830" height="448" key="GridCell.Tab.0.center" timestamp="1583303656037">
-      <screen x="67" y="27" width="1853" height="1053" />
+    <state width="1225" height="150" key="GridCell.Tab.0.center" timestamp="1583452547736">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state width="1237" height="163" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1583296568226" />
+    <state width="1225" height="150" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1583452547736" />
     <state width="1830" height="448" key="GridCell.Tab.0.center/67.27.1853.1053@67.27.1853.1053" timestamp="1583303656037" />
-    <state width="1830" height="448" key="GridCell.Tab.0.left" timestamp="1583303656037">
-      <screen x="67" y="27" width="1853" height="1053" />
+    <state width="1225" height="150" key="GridCell.Tab.0.left" timestamp="1583452547735">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state width="1237" height="163" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1583296568226" />
+    <state width="1225" height="150" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1583452547735" />
     <state width="1830" height="448" key="GridCell.Tab.0.left/67.27.1853.1053@67.27.1853.1053" timestamp="1583303656037" />
-    <state width="1830" height="448" key="GridCell.Tab.0.right" timestamp="1583303656037">
-      <screen x="67" y="27" width="1853" height="1053" />
+    <state width="1225" height="150" key="GridCell.Tab.0.right" timestamp="1583452547736">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state width="1237" height="163" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1583296568226" />
+    <state width="1225" height="150" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1583452547736" />
     <state width="1830" height="448" key="GridCell.Tab.0.right/67.27.1853.1053@67.27.1853.1053" timestamp="1583303656037" />
-    <state x="252" y="27" key="SettingsEditor" timestamp="1583303315573">
-      <screen x="67" y="27" width="1853" height="1053" />
+    <state width="1225" height="189" key="GridCell.Tab.1.bottom" timestamp="1583383036937">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
-    <state x="128" y="0" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1583296210664" />
+    <state width="1225" height="189" key="GridCell.Tab.1.bottom/0.0.1280.680@0.0.1280.680" timestamp="1583383036937" />
+    <state width="1225" height="189" key="GridCell.Tab.1.center" timestamp="1583383036937">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1225" height="189" key="GridCell.Tab.1.center/0.0.1280.680@0.0.1280.680" timestamp="1583383036937" />
+    <state width="1225" height="189" key="GridCell.Tab.1.left" timestamp="1583383036937">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1225" height="189" key="GridCell.Tab.1.left/0.0.1280.680@0.0.1280.680" timestamp="1583383036937" />
+    <state width="1225" height="189" key="GridCell.Tab.1.right" timestamp="1583383036937">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1225" height="189" key="GridCell.Tab.1.right/0.0.1280.680@0.0.1280.680" timestamp="1583383036937" />
+    <state x="58" y="0" key="SettingsEditor" timestamp="1583380882546">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="58" y="0" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1583380882546" />
     <state x="252" y="27" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1583303315573" />
     <state x="233" y="75" key="Vcs.Push.Dialog.v2" timestamp="1583296816968">
       <screen x="0" y="0" width="1280" height="680" />
@@ -194,5 +284,9 @@
       <screen x="0" y="0" width="1280" height="680" />
     </state>
     <state x="311" y="2" key="search.everywhere.popup/0.0.1280.680@0.0.1280.680" timestamp="1583291416397" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/bigData$customerChurnInData.coverage" NAME="customerChurnInData Coverage Results" MODIFIED="1583383036709" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/source" />
+    <SUITE FILE_PATH="coverage/bigData$random_forest_classifier_example.coverage" NAME="random_forest_classifier_example Coverage Results" MODIFIED="1583452296150" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/source" />
   </component>
 </project>

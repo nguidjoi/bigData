@@ -5,17 +5,12 @@ import warnings
 import matplotlib.pyplot as plt  # visualization
 import numpy as np  # linear algebra
 import pandas as pd
-import seaborn as sns  # visualization
 
 warnings.filterwarnings("ignore")
 import plotly.offline as py  # visualization
-
 py.init_notebook_mode(connected=True)  # visualization
-import plotly.graph_objs as go  # visualization
 
 if __name__ == "__main__":
-
-    sns.set()
 
     telcom = pd.read_csv(r"../data/dataset.csv")
     # first few rows
@@ -46,10 +41,6 @@ if __name__ == "__main__":
                     'TechSupport', 'StreamingTV', 'StreamingMovies']
     for i in replace_cols:
         telcom[i] = telcom[i].replace({'No internet service': 'No'})
-
-    # replace values
-    telcom["SeniorCitizen"] = telcom["SeniorCitizen"].replace({1: "Yes", 0: "No"})
-
 
     # Tenure to categorical column
     def tenure_lab(telcom):
@@ -85,40 +76,55 @@ if __name__ == "__main__":
     # values
     val = telcom["Churn"].value_counts().values.tolist()
 
-    trace = go.Pie(labels=lab,
-                   values=val,
-                   marker=dict(colors=['royalblue', 'lime'],
-                               line=dict(color="white",
-                                         width=1.3)
-                               ),
-                   rotation=90,
-                   hoverinfo="label+value+text",
-                   hole=.5
-                   )
-    layout = go.Layout(dict(title="Customer attrition in data",
-                            plot_bgcolor="rgb(243,243,243)",
-                            paper_bgcolor="rgb(243,243,243)",
-                            )
-                       )
 
-    data = [trace]
-    fig = go.Figure(data=data, layout=layout)
+    def func(pct, allvals):
+        absolute = int(pct / 100. * np.sum(allvals))
+        return "{:.1f}%".format(pct, absolute)
 
-    py.iplot(fig)
-    plt.show()
 
-    cmap = plt.get_cmap("tab20c")
-    outer_colors = cmap(np.arange(3) * 4)
-    inner_colors = cmap(np.array([1, 2, 5, 6, 9, 10]))
-    size = 0.3
-    day = [1, 2, 3, 4, 5]
-    sleeping = [7, 8, 6, 11, 7]
-    eating = [2, 3, 4, 3, 2]
-    working = [7, 8, 7, 2, 2]
-    playing = [8, 5, 7, 8, 13]
-    slices = [7, 2, 2, 13]
-    activities = ['sleeping', 'eating', 'working', 'playing']
-    cols = ['y', 'b', 'r', 'g']
-    plt.pie(slices, labels=activities, wedgeprops=dict(edgecolor="white", width=0.4), colors=outer_colors,
-            startangle=45, shadow=False, explode=(0, 0, 0, 0), radius=0.8)
-    plt.show()
+    def churnPlot():
+        fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
+        wedges, texts, autotexts = ax.pie(val, autopct=lambda pct: func(pct, val), textprops=dict(color="w"))
+        ax.legend(wedges, lab, title="Légende", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+        plt.setp(autotexts, size=8, weight="bold")
+        ax.set_title("Churn des clients.")
+        plt.show()
+
+
+    def plot(column, dataF, title):
+        val = dataF[column].value_counts().values.tolist()
+        lab = dataF[column].value_counts().keys().tolist()
+        fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
+        wedges, texts, autotexts = ax.pie(val, autopct=lambda pct: func(pct, val), textprops=dict(color="w"))
+        ax.legend(wedges, lab, title="Légende", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+        plt.setp(autotexts, size=8, weight="bold")
+        ax.set_title(title)
+        plt.show()
+
+
+    def showCategoricalFeature():
+        for i in cat_cols:
+            plot(i, churn, "Churn par " + i)
+            plot(i, not_churn, "Non Churn par " + i)
+
+
+    def histogram(firstData, secondData, column):
+        n_bins = 10
+        fig1, ax1 = plt.subplots()
+        labels = ["churn", "no churn"]
+        x_multi = [firstData[column], secondData[column]]
+        ax1.hist(x_multi, n_bins, histtype='bar', label=labels)
+        ax1.legend(prop={'size': 10})
+        ax1.set_title('Variation du churn et du no churn par ' + column)
+        fig1.tight_layout()
+        plt.show()
+
+
+    def showNumericalFeature():
+        for i in num_cols:
+            histogram(churn, not_churn, i)
+
+
+    churnPlot()
+    showNumericalFeature()
+    showCategoricalFeature()

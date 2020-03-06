@@ -31,17 +31,13 @@ warnings.filterwarnings("ignore")
 import plotly.offline as py  # visualization
 
 py.init_notebook_mode(connected=True)  # visualization
-import plotly.graph_objs as go  # visualization
 # $example off$
 from pyspark.sql import SparkSession
 from pyspark.sql.types import DoubleType
 from pyspark.sql.functions import UserDefinedFunction
 
 if __name__ == "__main__":
-    spark = SparkSession \
-        .builder \
-        .appName("RandomForestClassifierExample") \
-        .getOrCreate()
+    spark = SparkSession.builder.appName("RandomForestClassifierExample").getOrCreate()
 
     # $example on$
     # Load and parse the data file, converting it to a DataFrame.
@@ -94,30 +90,6 @@ if __name__ == "__main__":
     dps.corr(method='spearman')
 
     plt.show()
-
-    lab = telcom["Churn"].value_counts().keys().tolist()
-    # values
-    val = telcom["Churn"].value_counts().values.tolist()
-
-    trace = go.Pie(labels=lab,
-                   values=val,
-                   marker=dict(colors=['royalblue', 'lime'],
-                               line=dict(color="white",
-                                         width=1.3)
-                               ),
-                   rotation=90,
-                   hoverinfo="label+value+text",
-                   hole=.5
-                   )
-    layout = go.Layout(dict(title="Customer attrition in data",
-                            plot_bgcolor="rgb(243,243,243)",
-                            paper_bgcolor="rgb(243,243,243)",
-                            )
-                       )
-
-    data = [trace]
-    fig = go.Figure(data=data, layout=layout)
-    py.iplot(fig)
 
     # r2 = Correlation.corr(datas, "features", "spearman").head()
     # print("Spearman correlation matrix:\n" + str(r2[0]))
