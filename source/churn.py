@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt  # visualization
 import numpy as np  # linear algebra
 import pandas as pd
 
+from pyspark.ml.feature import StringIndexer, OneHotEncoder
+from pyspark.shell import sqlContext
+
 warnings.filterwarnings("ignore")
 import plotly.offline as py  # visualization
 py.init_notebook_mode(connected=True)  # visualization
@@ -75,56 +78,13 @@ if __name__ == "__main__":
     lab = telcom["Churn"].value_counts().keys().tolist()
     # values
     val = telcom["Churn"].value_counts().values.tolist()
+    df = sqlContext.createDataFrame(telcom)
+    stringIndexer = StringIndexer(inputCol="PaymentMethod", outputCol="categoryIndex")
+    model = stringIndexer.fit(df)
+    indexed = model.transform(df)
 
+    encoder = OneHotEncoder(inputCol="categoryIndex", outputCol="categoryVec")
+    encoded = encoder.transform(indexed)
 
-    def func(pct, allvals):
-        absolute = int(pct / 100. * np.sum(allvals))
-        return "{:.1f}%".format(pct, absolute)
+    encoded.show()
 
-
-    def churnPlot():
-        fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
-        wedges, texts, autotexts = ax.pie(val, autopct=lambda pct: func(pct, val), textprops=dict(color="w"))
-        ax.legend(wedges, lab, title="Légende", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-        plt.setp(autotexts, size=8, weight="bold")
-        ax.set_title("Churn des clients.")
-        plt.show()
-
-
-    def plot(column, dataF, title):
-        val = dataF[column].value_counts().values.tolist()
-        lab = dataF[column].value_counts().keys().tolist()
-        fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
-        wedges, texts, autotexts = ax.pie(val, autopct=lambda pct: func(pct, val), textprops=dict(color="w"))
-        ax.legend(wedges, lab, title="Légende", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-        plt.setp(autotexts, size=8, weight="bold")
-        ax.set_title(title)
-        plt.show()
-
-
-    def showCategoricalFeature():
-        for i in cat_cols:
-            plot(i, churn, "Churn par " + i)
-            plot(i, not_churn, "Non Churn par " + i)
-
-
-    def histogram(firstData, secondData, column):
-        n_bins = 10
-        fig1, ax1 = plt.subplots()
-        labels = ["churn", "no churn"]
-        x_multi = [firstData[column], secondData[column]]
-        ax1.hist(x_multi, n_bins, histtype='bar', label=labels)
-        ax1.legend(prop={'size': 10})
-        ax1.set_title('Variation du churn et du no churn par ' + column)
-        fig1.tight_layout()
-        plt.show()
-
-
-    def showNumericalFeature():
-        for i in num_cols:
-            histogram(churn, not_churn, i)
-
-
-    churnPlot()
-    showNumericalFeature()
-    showCategoricalFeature()

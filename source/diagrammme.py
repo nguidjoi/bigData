@@ -1,179 +1,132 @@
 # Importing libraries
-# Input data files are available in the "../input/" directory.
-from jedi.refactoring import inline
-% matplotlib
-inline
-import pandas as pd
 import warnings
+
+# Input data files are available in the "../input/" directory.
+import matplotlib.pyplot as plt  # visualization
+import numpy as np  # linear algebra
+import pandas as pd
+
+from pyspark.shell import sqlContext
 
 warnings.filterwarnings("ignore")
 import plotly.offline as py  # visualization
-
 py.init_notebook_mode(connected=True)  # visualization
-import plotly.graph_objs as go  # visualization
 
-telcom = pd.read_csv(r"../input/WA_Fn-UseC_-Telco-Customer-Churn.csv")
-# first few rows
-telcom.head()
+if __name__ == "__main__":
 
+    telcom = pd.read_csv(r"../data/dataset.csv")
+    # first few rows
+    telcom.head()
 
-# function  for pie plot for customer attrition types
-def plot_pie(column):
-    trace1 = go.Pie(values=churn[column].value_counts().values.tolist(),
-                    labels=churn[column].value_counts().keys().tolist(),
-                    hoverinfo="label+percent+name",
-                    domain=dict(x=[0, .48]),
-                    name="Churn Customers",
-                    marker=dict(line=dict(width=2,
-                                          color="rgb(243,243,243)")
-                                ),
-                    hole=.6
-                    )
-    trace2 = go.Pie(values=not_churn[column].value_counts().values.tolist(),
-                    labels=not_churn[column].value_counts().keys().tolist(),
-                    hoverinfo="label+percent+name",
-                    marker=dict(line=dict(width=2,
-                                          color="rgb(243,243,243)")
-                                ),
-                    domain=dict(x=[.52, 1]),
-                    hole=.6,
-                    name="Non churn customers"
-                    )
+    print("Rows     : ", telcom.shape[0])
+    print("Columns  : ", telcom.shape[1])
+    print("\nFeatures : \n", telcom.columns.tolist())
+    print("\nMissing values :  ", telcom.isnull().sum().values.sum())
+    print("\nUnique values :  \n", telcom.nunique())
 
-    layout = go.Layout(dict(title=column + " distribution in customer attrition ",
-                            plot_bgcolor="rgb(243,243,243)",
-                            paper_bgcolor="rgb(243,243,243)",
-                            annotations=[dict(text="churn customers",
-                                              font=dict(size=13),
-                                              showarrow=False,
-                                              x=.15, y=.5),
-                                         dict(text="Non churn customers",
-                                              font=dict(size=13),
-                                              showarrow=False,
-                                              x=.88, y=.5
-                                              )
-                                         ]
-                            )
-                       )
-    data = [trace1, trace2]
-    fig = go.Figure(data=data, layout=layout)
-    py.iplot(fig)
+    # Data Manipulation
+
+    # Data Manipulation
+
+    # Replacing spaces with null values in total charges column
+    telcom['TotalCharges'] = telcom["TotalCharges"].replace(" ", np.nan)
+
+    # Dropping null values from total charges column which contain .15% missing data
+    telcom = telcom[telcom["TotalCharges"].notnull()]
+    telcom = telcom.reset_index()[telcom.columns]
+
+    # convert to float type
+    telcom["TotalCharges"] = telcom["TotalCharges"].astype(float)
+
+    # replace 'No internet service' to No for the following columns
+    replace_cols = ['OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
+                    'TechSupport', 'StreamingTV', 'StreamingMovies']
+    for i in replace_cols:
+        telcom[i] = telcom[i].replace({'No internet service': 'No'})
+
+    # Tenure to categorical column
+    def tenure_lab(telcom):
+
+        if telcom["tenure"] <= 12:
+            return "Tenure_0-12"
+        elif (telcom["tenure"] > 12) & (telcom["tenure"] <= 24):
+            return "Tenure_12-24"
+        elif (telcom["tenure"] > 24) & (telcom["tenure"] <= 48):
+            return "Tenure_24-48"
+        elif (telcom["tenure"] > 48) & (telcom["tenure"] <= 60):
+            return "Tenure_48-60"
+        elif telcom["tenure"] > 60:
+            return "Tenure_gt_60"
 
 
-# function  for histogram for customer attrition types
-def histogram(column):
-    trace1 = go.Histogram(x=churn[column],
-                          histnorm="percent",
-                          name="Churn Customers",
-                          marker=dict(line=dict(width=.5,
-                                                color="black"
-                                                )
-                                      ),
-                          opacity=.9
-                          )
+    telcom["tenure_group"] = telcom.apply(lambda telcom: tenure_lab(telcom),
+                                          axis=1)
 
-    trace2 = go.Histogram(x=not_churn[column],
-                          histnorm="percent",
-                          name="Non churn customers",
-                          marker=dict(line=dict(width=.5,
-                                                color="black"
-                                                )
-                                      ),
-                          opacity=.9
-                          )
+    # Separating churn and non churn customers
+    churn = telcom[telcom["Churn"] == "Yes"]
+    not_churn = telcom[telcom["Churn"] == "No"]
 
-    data = [trace1, trace2]
-    layout = go.Layout(dict(title=column + " distribution in customer attrition ",
-                            plot_bgcolor="rgb(243,243,243)",
-                            paper_bgcolor="rgb(243,243,243)",
-                            xaxis=dict(gridcolor='rgb(255, 255, 255)',
-                                       title=column,
-                                       zerolinewidth=1,
-                                       ticklen=5,
-                                       gridwidth=2
-                                       ),
-                            yaxis=dict(gridcolor='rgb(255, 255, 255)',
-                                       title="percent",
-                                       zerolinewidth=1,
-                                       ticklen=5,
-                                       gridwidth=2
-                                       ),
-                            )
-                       )
-    fig = go.Figure(data=data, layout=layout)
+    # Separating catagorical and numerical columns
+    Id_col = ['customerID']
+    target_col = ["Churn"]
+    cat_cols = telcom.nunique()[telcom.nunique() < 6].keys().tolist()
+    cat_cols = [x for x in cat_cols if x not in target_col]
+    num_cols = [x for x in telcom.columns if x not in cat_cols + target_col + Id_col]
 
-    py.iplot(fig)
+    # labels
+    lab = telcom["Churn"].value_counts().keys().tolist()
+    # values
+    val = telcom["Churn"].value_counts().values.tolist()
+    spark_df = sqlContext.createDataFrame(telcom)
+    spark_df.show
+    def func(pct, allvals):
+        absolute = int(pct / 100. * np.sum(allvals))
+        return "{:.1f}%".format(pct, absolute)
 
 
-# function  for scatter plot matrix  for numerical columns in data
-def scatter_matrix(df):
-    df = df.sort_values(by="Churn", ascending=True)
-    classes = df["Churn"].unique().tolist()
-    classes
-
-    class_code = {classes[k]: k for k in range(2)}
-    class_code
-
-    color_vals = [class_code[cl] for cl in df["Churn"]]
-    color_vals
-
-    pl_colorscale = "Portland"
-
-    pl_colorscale
-
-    text = [df.loc[k, "Churn"] for k in range(len(df))]
-    text
-
-    trace = go.Splom(dimensions=[dict(label="tenure",
-                                      values=df["tenure"]),
-                                 dict(label='MonthlyCharges',
-                                      values=df['MonthlyCharges']),
-                                 dict(label='TotalCharges',
-                                      values=df['TotalCharges'])],
-                     text=text,
-                     marker=dict(color=color_vals,
-                                 colorscale=pl_colorscale,
-                                 size=3,
-                                 showscale=False,
-                                 line=dict(width=.1,
-                                           color='rgb(230,230,230)'
-                                           )
-                                 )
-                     )
-    axis = dict(showline=True,
-                zeroline=False,
-                gridcolor="#fff",
-                ticklen=4
-                )
-
-    layout = go.Layout(dict(title=
-                            "Scatter plot matrix for Numerical columns for customer attrition",
-                            autosize=False,
-                            height=800,
-                            width=800,
-                            dragmode="select",
-                            hovermode="closest",
-                            plot_bgcolor='rgba(240,240,240, 0.95)',
-                            xaxis1=dict(axis),
-                            yaxis1=dict(axis),
-                            xaxis2=dict(axis),
-                            yaxis2=dict(axis),
-                            xaxis3=dict(axis),
-                            yaxis3=dict(axis),
-                            )
-                       )
-    data = [trace]
-    fig = go.Figure(data=data, layout=layout)
-    py.iplot(fig)
+    def churnPlot():
+        fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
+        wedges, texts, autotexts = ax.pie(val, autopct=lambda pct: func(pct, val), textprops=dict(color="w"))
+        ax.legend(wedges, lab, title="Légende", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+        plt.setp(autotexts, size=8, weight="bold")
+        ax.set_title("Churn des clients.")
+        plt.show()
 
 
-# for all categorical columns plot pie
-for i in cat_cols:
-    plot_pie(i)
+    def plot(column, dataF, title):
+        val = dataF[column].value_counts().values.tolist()
+        lab = dataF[column].value_counts().keys().tolist()
+        fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
+        wedges, texts, autotexts = ax.pie(val, autopct=lambda pct: func(pct, val), textprops=dict(color="w"))
+        ax.legend(wedges, lab, title="Légende", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+        plt.setp(autotexts, size=8, weight="bold")
+        ax.set_title(title)
+        plt.show()
 
-# for all categorical columns plot histogram
-for i in num_cols:
-    histogram(i)
 
-# scatter plot matrix
-scatter_matrix(telcom)
+    def showCategoricalFeature():
+        for i in cat_cols:
+            plot(i, churn, "Churn par " + i)
+            plot(i, not_churn, "Non Churn par " + i)
+
+
+    def histogram(firstData, secondData, column):
+        n_bins = 10
+        fig1, ax1 = plt.subplots()
+        labels = ["churn", "no churn"]
+        x_multi = [firstData[column], secondData[column]]
+        ax1.hist(x_multi, n_bins, histtype='bar', label=labels)
+        ax1.legend(prop={'size': 10})
+        ax1.set_title('Variation du churn et du no churn par ' + column)
+        fig1.tight_layout()
+        plt.show()
+
+
+    def showNumericalFeature():
+        for i in num_cols:
+            histogram(churn, not_churn, i)
+
+
+    churnPlot()
+    showNumericalFeature()
+    showCategoricalFeature()
