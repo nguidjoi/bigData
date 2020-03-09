@@ -1,16 +1,23 @@
-# Input data files are available in the "../input/" directory.
-
-import warnings
-
+import seaborn as sn
 import pandas as pd
-
-warnings.filterwarnings("ignore")
-import plotly.offline as py  # visualization
-import plotly.graph_objs as go  # visualization
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    telcom = pd.read_csv(r"../data/dataset.csv")
-    telcom.head()
-    lab = telcom["Churn"].value_counts().keys().tolist()
-    val = telcom["Churn"].value_counts().values.tolist()
+    array = [[13,1,1,0,2,0],
+         [3,9,6,0,1,0],
+         [0,0,16,2,0,0],
+         [0,0,0,13,0,0],
+         [0,0,0,0,15,0],
+         [0,0,1,0,0,15]]
 
+    df_cm = pd.DataFrame(array, range(6), range(6))
+
+    def displaymatrix(df_cm):
+
+        # plt.figure(figsize=(10,7))
+        sn.set(font_scale=1.4) # for label size
+        sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}) # font size
+
+        plt.show()
+
+    displaymatrix(df_cm)

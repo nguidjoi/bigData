@@ -7,12 +7,10 @@ if __name__ == "__main__":
     # Load and parse the data file, converting it to a DataFrame.
     df = spark.read.format("csv").option("header", "true").load("../data/dataset.csv").drop("customerID")
 
+    stringIndexer = StringIndexer(inputCol="gender", outputCol="categoryIndex")
+    model = stringIndexer.fit(df)
+    indexed = model.transform(df)
 
-
-stringIndexer = StringIndexer(inputCol="PaymentMethod", outputCol="categoryIndex")
-model = stringIndexer.fit(df)
-indexed = model.transform(df)
-
-encoder = OneHotEncoder(inputCol="categoryIndex", outputCol="categoryVec")
-encoded = encoder.transform(indexed)
-encoded.show()
+    encoder = OneHotEncoder(inputCol="categoryIndex", outputCol="categoryVec")
+    encoded = encoder.transform(indexed)
+    encoded.show()
