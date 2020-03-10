@@ -24,10 +24,6 @@ if __name__ == "__main__":
     print("\nMissing values :  ", telcom.isnull().sum().values.sum())
     print("\nUnique values :  \n", telcom.nunique())
 
-    # Data Manipulation
-
-    # Data Manipulation
-
     # Replacing spaces with null values in total charges column
     telcom['TotalCharges'] = telcom["TotalCharges"].replace(" ", np.nan)
 

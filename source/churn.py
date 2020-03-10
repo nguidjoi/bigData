@@ -14,6 +14,7 @@ from pandas.plotting import scatter_matrix
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import RandomForestClassifier, LogisticRegression
 from pyspark.ml.feature import StringIndexer, MinMaxScaler, VectorAssembler
+from pyspark.ml.feature import ChiSqSelector
 from pyspark.shell import sqlContext
 
 from pyspark.sql import SparkSession
@@ -127,14 +128,26 @@ if __name__ == "__main__":
     featureAssembler = [VectorAssembler(inputCols=featureCols, outputCol= "features") ]
 
     pipeline = Pipeline(stages=indexers+assembler+normalizers+featureAssembler+labelindexers)
+
     fdata = pipeline.fit(dfs).transform(dfs)
     fdata.cache()
 
-    (trainingData, testData) = fdata.randomSplit([0.7, 0.3])
+    selector = ChiSqSelector(numTopFeatures=20, featuresCol="features",
+                             outputCol="selectedFeatures", labelCol="label")
+
+    result = selector.fit(fdata).transform(fdata)
+
+    print("ChiSqSelector output with top %d features selected" % selector.getNumTopFeatures())
+    result.show()
+
+    (trainingData, testData) = result.randomSplit([0.3, 0.3])
 
     # Train a  model.
-    rf = RandomForestClassifier(labelCol="label", featuresCol="features", numTrees=100)
-    lr = LogisticRegression(featuresCol='features', labelCol='label', maxIter=10)
+    rf = RandomForestClassifier(labelCol="label", featuresCol="selectedFeatures", numTrees=100)
+    lr = LogisticRegression(featuresCol='selectedFeatures', labelCol='label', maxIter=10)
+
+
+
 
     lrModel = lr.fit(trainingData)
     rfModel = rf.fit(trainingData)
@@ -142,7 +155,6 @@ if __name__ == "__main__":
     rfTransformed = rfModel.transform(testData)
     rlTransformed = lrModel.transform(testData)
 
-    rfTransformed.s
     # evaluate
 
     def displayAccuracy(lrModel):
@@ -215,5 +227,6 @@ if __name__ == "__main__":
     print('Cross validation Evaluation for Logistic regression')
     crossvalidate(lr, evaluator, trainingData, testData)
     displayAccuracy(lrModel)
+
 
 spark.stop()
