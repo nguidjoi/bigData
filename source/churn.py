@@ -34,56 +34,56 @@ if __name__ == "__main__":
     data = spark.read.format("csv").option("header", "true").load("../data/dataset.csv")
     display(data)
 
-    #telcom = pd.read_csv(r"../data/dataset.csv")
+    #pandasData = pd.read_csv(r"../data/dataset.csv")
 
-    telcom = data.toPandas()
+    pandasData = data.toPandas()
     # first few rows
-    telcom.head()
+    pandasData.head()
 
-    print("Rows     : ", telcom.shape[0])
-    print("Columns  : ", telcom.shape[1])
-    print("\nFeatures : \n", telcom.columns.tolist())
-    print("\nMissing values :  ", telcom.isnull().sum().values.sum())
-    print("\nUnique values :  \n", telcom.nunique())
+    print("Rows     : ", pandasData.shape[0])
+    print("Columns  : ", pandasData.shape[1])
+    print("\nFeatures : \n", pandasData.columns.tolist())
+    print("\nMissing values :  ", pandasData.isnull().sum().values.sum())
+    print("\nUnique values :  \n", pandasData.nunique())
 
     # Replacing spaces with null values in total charges column
-    telcom['TotalCharges'] = telcom["TotalCharges"].replace(" ", 999999999999999999)
+    pandasData['TotalCharges'] = pandasData["TotalCharges"].replace(" ", 999999999999999999)
 
     # Dropping null values from total charges column which contain .15% missing data
-    telcom = telcom[telcom["TotalCharges"] != 999999999999999999]
-    telcom = telcom.reset_index()[telcom.columns]
+    pandasData = pandasData[pandasData["TotalCharges"] != 999999999999999999]
+    pandasData = pandasData.reset_index()[pandasData.columns]
 
     # convert to float type
-    telcom["TotalCharges"] = telcom["TotalCharges"].astype(float)
-    telcom["tenure"] = telcom["tenure"].astype(float)
-    telcom["MonthlyCharges"] = telcom["MonthlyCharges"].astype(float)
+    pandasData["TotalCharges"] = pandasData["TotalCharges"].astype(float)
+    pandasData["tenure"] = pandasData["tenure"].astype(float)
+    pandasData["MonthlyCharges"] = pandasData["MonthlyCharges"].astype(float)
 
     # replace 'No internet service' to No for the following columns
     replace_cols = ['OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
                     'TechSupport', 'StreamingTV', 'StreamingMovies']
 
     for i in replace_cols:
-        telcom[i] = telcom[i].replace({'No internet service': 'No'})
+        pandasData[i] = pandasData[i].replace({'No internet service': 'No'})
 
     # Separating churn and non churn customers
-    churn = telcom[telcom["Churn"] == "Yes"]
-    not_churn = telcom[telcom["Churn"] == "No"]
+    churn = pandasData[pandasData["Churn"] == "Yes"]
+    not_churn = pandasData[pandasData["Churn"] == "No"]
 
     # Separating catagorical and numerical columns
     Id_col = ['customerID']
     target_col = ["Churn"]
-    cat_cols = telcom.nunique()[telcom.nunique() < 6].keys().tolist()
+    cat_cols = pandasData.nunique()[pandasData.nunique() < 6].keys().tolist()
     cat_cols = [x for x in cat_cols if x not in target_col]
-    num_cols = [x for x in telcom.columns if x not in cat_cols + target_col + Id_col]
+    num_cols = [x for x in pandasData.columns if x not in cat_cols + target_col + Id_col]
     # Binary columns with 2 values
-    bin_cols = telcom.nunique()[telcom.nunique() == 2].keys().tolist()
+    bin_cols = pandasData.nunique()[pandasData.nunique() == 2].keys().tolist()
     # Columns more than 2 values
     multi_cols = [i for i in cat_cols if i not in bin_cols]
 
-    pd.DataFrame(data.take(5), columns=telcom.columns).transpose()
+    pd.DataFrame(data.take(5), columns=pandasData.columns).transpose()
     data.select(num_cols).describe().toPandas().transpose()
 
-    dps = pd.DataFrame(telcom, columns=num_cols)
+    dps = pd.DataFrame(pandasData, columns=num_cols)
     axs = scatter_matrix(dps, alpha=0.2, figsize=(10, 10));
     n = len(dps.columns)
     for i in range(n):
@@ -98,14 +98,14 @@ if __name__ == "__main__":
     cordfs = dps.corr()
     plt.show()
     # labels
-    lab = telcom["Churn"].value_counts().keys().tolist()
+    lab = pandasData["Churn"].value_counts().keys().tolist()
     # values
-    val = telcom["Churn"].value_counts().values.tolist()
+    val = pandasData["Churn"].value_counts().values.tolist()
 
-    telcom = pd.get_dummies(telcom, columns=multi_cols)
+    pandasData = pd.get_dummies(pandasData, columns=multi_cols)
 
-    dfs = sqlContext.createDataFrame(telcom)
-    cat_cols = telcom.nunique()[telcom.nunique() < 6].keys().tolist()
+    dfs = sqlContext.createDataFrame(pandasData)
+    cat_cols = pandasData.nunique()[pandasData.nunique() < 6].keys().tolist()
     cat_cols = [x for x in cat_cols if x not in target_col]
     cat_cols_index = []
     for i in cat_cols:
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     fdata = pipeline.fit(dfs).transform(dfs)
     fdata.cache()
 
-    selector = ChiSqSelector(numTopFeatures=20, featuresCol="features",
+    selector = ChiSqSelector(numTopFeatures=16, featuresCol="features",
                              outputCol="selectedFeatures", labelCol="label")
 
     result = selector.fit(fdata).transform(fdata)

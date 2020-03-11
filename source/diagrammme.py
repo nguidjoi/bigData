@@ -14,31 +14,31 @@ py.init_notebook_mode(connected=True)  # visualization
 
 if __name__ == "__main__":
 
-    telcom = pd.read_csv(r"../data/dataset.csv")
+    pandasData = pd.read_csv(r"../data/dataset.csv")
     # first few rows
-    telcom.head()
+    pandasData.head()
 
-    print("Rows     : ", telcom.shape[0])
-    print("Columns  : ", telcom.shape[1])
-    print("\nFeatures : \n", telcom.columns.tolist())
-    print("\nMissing values :  ", telcom.isnull().sum().values.sum())
-    print("\nUnique values :  \n", telcom.nunique())
+    print("Rows     : ", pandasData.shape[0])
+    print("Columns  : ", pandasData.shape[1])
+    print("\nFeatures : \n", pandasData.columns.tolist())
+    print("\nMissing values :  ", pandasData.isnull().sum().values.sum())
+    print("\nUnique values :  \n", pandasData.nunique())
 
     # Replacing spaces with null values in total charges column
-    telcom['TotalCharges'] = telcom["TotalCharges"].replace(" ", np.nan)
+    pandasData['TotalCharges'] = pandasData["TotalCharges"].replace(" ", np.nan)
 
-    # Dropping null values from total charges column which contain .15% missing data
-    telcom = telcom[telcom["TotalCharges"].notnull()]
-    telcom = telcom.reset_index()[telcom.columns]
+    # Dropping null values from total charges column which contain 11 missing rows in data
+    pandasData = pandasData[pandasData["TotalCharges"].notnull()]
+    pandasData = pandasData.reset_index()[pandasData.columns]
 
     # convert to float type
-    telcom["TotalCharges"] = telcom["TotalCharges"].astype(float)
+    pandasData["TotalCharges"] = pandasData["TotalCharges"].astype(float)
 
     # replace 'No internet service' to No for the following columns
     replace_cols = ['OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
                     'TechSupport', 'StreamingTV', 'StreamingMovies']
     for i in replace_cols:
-        telcom[i] = telcom[i].replace({'No internet service': 'No'})
+        pandasData[i] = pandasData[i].replace({'No internet service': 'No'})
 
     # Tenure to categorical column
     def tenure_lab(telcom):
@@ -55,25 +55,24 @@ if __name__ == "__main__":
             return "Tenure_gt_60"
 
 
-    telcom["tenure_group"] = telcom.apply(lambda telcom: tenure_lab(telcom),
-                                          axis=1)
+    pandasData["tenure_group"] = pandasData.apply(lambda data: tenure_lab(data), axis=1)
 
     # Separating churn and non churn customers
-    churn = telcom[telcom["Churn"] == "Yes"]
-    not_churn = telcom[telcom["Churn"] == "No"]
+    churn = pandasData[pandasData["Churn"] == "Yes"]
+    not_churn = pandasData[pandasData["Churn"] == "No"]
 
     # Separating catagorical and numerical columns
     Id_col = ['customerID']
     target_col = ["Churn"]
-    cat_cols = telcom.nunique()[telcom.nunique() < 6].keys().tolist()
+    cat_cols = pandasData.nunique()[pandasData.nunique() < 6].keys().tolist()
     cat_cols = [x for x in cat_cols if x not in target_col]
-    num_cols = [x for x in telcom.columns if x not in cat_cols + target_col + Id_col]
+    num_cols = [x for x in pandasData.columns if x not in cat_cols + target_col + Id_col]
 
     # labels
-    lab = telcom["Churn"].value_counts().keys().tolist()
+    lab = pandasData["Churn"].value_counts().keys().tolist()
     # values
-    val = telcom["Churn"].value_counts().values.tolist()
-    spark_df = sqlContext.createDataFrame(telcom)
+    val = pandasData["Churn"].value_counts().values.tolist()
+    spark_df = sqlContext.createDataFrame(pandasData)
     spark_df.show
     def func(pct, allvals):
         absolute = int(pct / 100. * np.sum(allvals))
