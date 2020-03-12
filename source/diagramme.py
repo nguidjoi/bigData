@@ -1,16 +1,35 @@
 # Importing libraries
 import warnings
 
-# Input data files are available in the "../input/" directory.
-import matplotlib.pyplot as plt  # visualization
-import numpy as np  # linear algebra
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-
+import seaborn as sn
 from pyspark.shell import sqlContext
-
 warnings.filterwarnings("ignore")
-import plotly.offline as py  # visualization
-py.init_notebook_mode(connected=True)  # visualization
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+
+def displayConfusionMatrix(df_cm):
+    sn.set(font_scale=1.4)
+    sn.heatmap(df_cm, annot=True, annot_kws={"size": 16})
+    plt.show()
+
+def displayCorrelationMatrix(pandasData, num_cols):
+    dps = pd.DataFrame(pandasData, columns=num_cols)
+    axs = scatter_matrix(dps, alpha=0.2, figsize=(10, 10));
+    n = len(dps.columns)
+    for i in range(n):
+        v = axs[i, 0]
+        v.yaxis.label.set_rotation(0)
+        v.yaxis.label.set_ha('right')
+        v.set_yticks(())
+        h = axs[n - 1, i]
+        h.xaxis.label.set_rotation(90)
+        h.set_xticks(())
+    dps.corr()
+    plt.show()
+
 
 if __name__ == "__main__":
 
@@ -116,6 +135,8 @@ if __name__ == "__main__":
         fig1.tight_layout()
         plt.show()
 
+
+    displayCorrelationMatrix()
 
     def showNumericalFeature():
         for i in num_cols:

@@ -10,10 +10,14 @@ from pyspark.ml.feature import ChiSqSelector
 from pyspark.shell import sqlContext
 from pyspark.sql import SparkSession
 warnings.filterwarnings("ignore")
-import plotly.offline as py  # visualization
-py.init_notebook_mode(connected=True)  # visualization
-import numpy as np  # linear algebra
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import numpy as np
 
+def evaluatePrediction(rfTransformed, evaluator):
+    auroc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderROC"})
+    auprc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderPR"})
+    return np.array([auroc,auprc])
 
 def evaluateLr(rfTransformed, evaluator, i):
     auroc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderROC"})
@@ -35,7 +39,6 @@ def initializePipeline(num_cols,cat_cols):
     for i in cat_cols:
         featureCols.append(i + "_hoted")
 
-
     labelindexers = [StringIndexer(inputCol="Churn", outputCol="label")]
     indexers = [StringIndexer(inputCol=column, outputCol=column + "_index") for column in cat_cols]
     oneHotEncoder = [OneHotEncoderEstimator(inputCols=cat_cols_index, outputCols=cat_cols_hoted)]
@@ -43,7 +46,6 @@ def initializePipeline(num_cols,cat_cols):
     normalizers = [MinMaxScaler(inputCol=column + "_indexe", outputCol=column + "scaled") for column in num_cols]
     featureAssembler = [VectorAssembler(inputCols=featureCols, outputCol="features")]
     pipeline = Pipeline(stages=indexers + oneHotEncoder + assembler + normalizers + featureAssembler + labelindexers)
-
     return pipeline
 
 
@@ -59,16 +61,13 @@ def cleanData(sparkDf):
     pandaDf["TotalCharges"] = pandaDf["TotalCharges"].astype(float)
     pandaDf["tenure"] = pandaDf["tenure"].astype(float)
     pandaDf["MonthlyCharges"] = pandaDf["MonthlyCharges"].astype(float)
-
     replace_cols = ['OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
                     'TechSupport', 'StreamingTV', 'StreamingMovies']
     for i in replace_cols:
         pandaDf[i] = pandaDf[i].replace({'No internet service': 'No'})
 
     pandaDf["MultipleLines"].replace({'No phone service': 'No'})
-
     return pandaDf
-
 
 
 def loadData(spark):
@@ -99,17 +98,13 @@ def getFeatureCols(num_cols, cat_cols):
 
     for i in cat_cols:
         featureCols.append(i + "_hoted")
-
     return featureCols;
 
 
 def ProcessData(pandaData, pipeline):
     sparkData = sqlContext.createDataFrame(pandaData)
-    dataForUse, dataOther = sparkData.randomSplit([0.5, 0.5])
-    transformedData = pipeline.fit(dataForUse).transform(dataForUse)
-    selectorData, trainingData = transformedData.randomSplit([0.7, 0.3])
-
-    return selectorData
+    transformedData = pipeline.fit(sparkData).transform(sparkData)
+    return transformedData
 
 
 def getNumericCols(pandaData):
@@ -127,7 +122,7 @@ def getCategoricCols(pandaData):
 
 if __name__ == "__main__":
 
-    spark = SparkSession.builder.appName("Churn Feature Selection").getOrCreate()
+    spark = SparkSession.builder.appName("Churn_Feature_Selection").getOrCreate()
     data = loadData(spark)
     pandaData = cleanData(data)
 
@@ -140,9 +135,9 @@ if __name__ == "__main__":
     lr = LogisticRegression(featuresCol='selectedFeatures', labelCol='label', maxIter=10)
 
     featureCols = getFeatureCols(num_cols, cat_cols)
-    mesureTable = np.vstack(["number"," areaUnderRoc ",  " areaUnderPR "], getAllMeasure(lr, selectorData, featureCols))
+    mesureTable =  getAllMeasure(lr, selectorData, featureCols)
 
     print("Measure obtenue avec la regression logistique \n", mesureTable)
     print(["number", " areaUnderRoc ", " areaUnderPR "])
 
-spark.stop()
+    spark.stop()

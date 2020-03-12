@@ -1,33 +1,122 @@
-from pyspark.ml.feature import OneHotEncoder, StringIndexer
+# Importing libraries
+import warnings
+
+from pyspark.ml.evaluation import BinaryClassificationEvaluator
+import pandas as pd
+from pyspark.ml import Pipeline
+from pyspark.ml.classification import LogisticRegression, RandomForestClassifier
+from pyspark.ml.feature import StringIndexer, MinMaxScaler, VectorAssembler, OneHotEncoderEstimator
+from pyspark.ml.feature import ChiSqSelector
+from pyspark.shell import sqlContext
 from pyspark.sql import SparkSession
+warnings.filterwarnings("ignore")
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+
+def initializePipeline(num_cols,cat_cols):
+
+    cat_cols_index = []
+    cat_cols_hoted = []
+    for i in cat_cols:
+        cat_cols_index.append(i + "_index")
+        cat_cols_hoted.append(i + "_hoted")
+
+    featureCols = []
+    for i in num_cols:
+        featureCols.append(i + "scaled")
+
+    for i in cat_cols:
+        featureCols.append(i + "_hoted")
+
+    labelindexers = [StringIndexer(inputCol="Churn", outputCol="label")]
+    indexers = [StringIndexer(inputCol=column, outputCol=column + "_index") for column in cat_cols]
+    oneHotEncoder = [OneHotEncoderEstimator(inputCols=cat_cols_index, outputCols=cat_cols_hoted)]
+    assembler = [VectorAssembler(inputCols=num_cols, outputCol=i + "_indexe") for i in num_cols]
+    normalizers = [MinMaxScaler(inputCol=column + "_indexe", outputCol=column + "scaled") for column in num_cols]
+    featureAssembler = [VectorAssembler(inputCols=featureCols, outputCol="resultedfeatures")]
+    selector = [ChiSqSelector(numTopFeatures=13, featuresCol="resultedfeatures", outputCol="features", labelCol="label")]
+    pipeline = Pipeline(stages=indexers + oneHotEncoder + assembler + normalizers + featureAssembler + labelindexers + selector)
+    return pipeline
+
+
+def cleanData(sparkDf):
+
+    pandaDf = sparkDf.toPandas()
+    # Replacing spaces with 999999 values in total charges column
+    pandaDf['TotalCharges'] = pandaDf["TotalCharges"].replace(" ", 999999)
+    # Dropping null values from total charges column which contain 11 rows with missing data
+    pandaDf = pandaDf[pandaDf["TotalCharges"] != 999999]
+    pandaDf = pandaDf.reset_index()[pandaDf.columns]
+    # convert to float type
+    pandaDf["TotalCharges"] = pandaDf["TotalCharges"].astype(float)
+    pandaDf["tenure"] = pandaDf["tenure"].astype(float)
+    pandaDf["MonthlyCharges"] = pandaDf["MonthlyCharges"].astype(float)
+
+    replace_cols = ['OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies']
+    for i in replace_cols:
+        pandaDf[i] = pandaDf[i].replace({'No internet service': 'No'})
+
+    pandaDf["MultipleLines"].replace({'No phone service': 'No'})
+    return pandaDf
+
+def loadData(spark):
+    data = spark.read.format("csv").option("header", "true")\
+                .load("../data/dataset.csv")\
+                .drop("customerID")\
+                .drop_duplicates()
+    return data
+
+def getFeatureCols(num_cols, cat_cols):
+    featureCols = []
+    for i in num_cols:
+        featureCols.append(i + "scaled")
+
+    for i in cat_cols:
+        featureCols.append(i + "_hoted")
+    return featureCols;
+
+
+def ProcessData(pandaData, pipeline):
+    sparkData = sqlContext.createDataFrame(pandaData)
+    transformedData = pipeline.fit(sparkData).transform(sparkData)
+    return transformedData
+
+
+def getNumericCols(pandaData):
+    target_col = ["Churn"]
+    cat_cols = pandaData.nunique()[pandaData.nunique() < 6].keys().tolist()
+    cat_cols = [x for x in cat_cols if x not in target_col]
+    num_cols = [x for x in pandaData.columns if x not in cat_cols + target_col]
+    return num_cols
+
+def getCategoricCols(pandaData):
+    target_col = ["Churn"]
+    cat_cols = pandaData.nunique()[pandaData.nunique() < 6].keys().tolist()
+    cat_cols = [x for x in cat_cols if x not in target_col]
+    return cat_cols
+
+
+def preproces(spark):
+    data = loadData(spark)
+    pandaData = cleanData(data)
+    num_cols = getNumericCols(pandaData)
+    cat_cols = getCategoricCols(pandaData)
+    pipeline = initializePipeline(num_cols, cat_cols)
+    processedData = ProcessData(pandaData, pipeline)
+    processedData.cache()
+    return processedData
+
+
+def preprocesData(data):
+    pandaData = cleanData(data)
+    num_cols = getNumericCols(pandaData)
+    cat_cols = getCategoricCols(pandaData)
+    pipeline = initializePipeline(num_cols, cat_cols)
+    processedData = ProcessData(pandaData, pipeline)
+    processedData.cache()
+    return processedData
 
 if __name__ == "__main__":
-    spark = SparkSession.builder.appName("RandomForestClassifierExample").getOrCreate()
-    # $example on$
-    # Load and parse the data file, converting it to a DataFrame.
-    df = spark.read.format("csv").option("header", "true").load("../data/dataset.csv").drop("customerID").drop_duplicates()
-    telcom =df.toPandas()
-
-    # Replacing spaces with null values in total charges column
-    telcom['TotalCharges'] = telcom["TotalCharges"].replace(" ", 999999)
-
-    # Dropping null values from total charges column which contain .15% missing data
-    telcom = telcom[telcom["TotalCharges"] != 999999]
-    telcom = telcom.reset_index()[telcom.columns]
-
-    target_col = ["Churn"]
-    cat_cols = telcom.nunique()[telcom.nunique() < 6].keys().tolist()
-    cat_cols = [x for x in cat_cols if x not in target_col]
-    num_cols = [x for x in telcom.columns if x not in cat_cols + target_col]
-    bin_cols = telcom.nunique()[telcom.nunique() == 2].keys().tolist()
-    multi_cols = [i for i in cat_cols if i not in bin_cols]
-
-    encoder = OneHotEncoder(inputCol="categoryIndex", outputCol="categoryVec")
-    target_col = ["Churn"]
-
-    stringIndexer = StringIndexer(inputCol="gender", outputCol="categoryIndex")
-    model = stringIndexer.fit(df)
-    indexed = model.transform(df)
-
-    encoded = encoder.transform(indexed)
-    encoded.show()
+    spark = SparkSession.builder.appName("Churn_PreProcessing").getOrCreate()
+    preproces(spark)
+    spark.stop()
