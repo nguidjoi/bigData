@@ -1,7 +1,7 @@
 # Importing libraries
 import warnings
 
-from pyspark.ml.evaluation import BinaryClassificationEvaluator
+from pyspark.ml.evaluation import BinaryClassificationEvaluator, MulticlassClassificationEvaluator
 import pandas as pd
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import LogisticRegression, RandomForestClassifier
@@ -14,11 +14,13 @@ import plotly.offline as py
 py.init_notebook_mode(connected=True)
 import numpy as np
 
-def evaluatePrediction(rfTransformed, evaluator):
+def evaluatePrediction(rfTransformed):
+    evaluator = BinaryClassificationEvaluator()
+    multiClass = MulticlassClassificationEvaluator()
     auroc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderROC"})
     auprc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderPR"})
-    tpr = evaluator.evaluate(rfTransformed, {evaluator.metricName: "truePositiveRate"})
-    return np.array([auroc,auprc,tpr])
+    accuracy = evaluator.evaluate(rfTransformed, {multiClass.metricName: "accuracy"})
+    return np.array([auroc,auprc,accuracy,1-accuracy]),
 
 def evaluateLr(rfTransformed, evaluator, i):
     auroc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderROC"})

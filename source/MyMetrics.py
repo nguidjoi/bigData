@@ -193,13 +193,9 @@ class MulticlassMetrics(JavaModelWrapper):
     .. versionadded:: 1.4.0
     """
 
-    def __init__(self, predictionAndLabels,sc):
-        sql_ctx = sqlContext,
-        df = sql_ctx.createDataFrame(predictionAndLabels, schema=StructType([
-            StructField("prediction", DoubleType(), nullable=False),
-            StructField("label", DoubleType(), nullable=False)]))
+    def __init__(self, predictionAndLabels, sc):
         java_class = sc._jvm.org.apache.spark.mllib.evaluation.MulticlassMetrics
-        java_model = java_class(df._jdf)
+        java_model = java_class(predictionAndLabels._jdf)
         super(MulticlassMetrics, self).__init__(java_model)
 
     @since('1.4.0')
@@ -268,7 +264,7 @@ class MulticlassMetrics(JavaModelWrapper):
 
     @property
     @since('2.0.0')
-    def accuracy(self):
+    def accuracy(self, label=None):
         """
         Returns accuracy (equals to the total number of correctly classified instances
         out of the total number of instances).

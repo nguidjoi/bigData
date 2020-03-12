@@ -113,6 +113,7 @@ def preprocesData(data):
     cat_cols = getCategoricCols(pandaData)
     pipeline = initializePipeline(num_cols, cat_cols)
     processedData = ProcessData(pandaData, pipeline)
+    print(processedData)
     processedData.cache()
     return processedData
 
