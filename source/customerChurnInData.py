@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     def displaymatrix(df_cm):
 
-        # plt.figure(figsize=(10,7))
+
         sn.set(font_scale=1.4) # for label size
         sn.heatmap(df_cm, annot=True, annot_kws={"size": 16}) # font size
 

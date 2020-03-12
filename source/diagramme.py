@@ -8,6 +8,8 @@ import seaborn as sn
 from pyspark.shell import sqlContext
 warnings.filterwarnings("ignore")
 import plotly.offline as py
+import pandas as pd
+from pandas.plotting import scatter_matrix
 py.init_notebook_mode(connected=True)
 
 def displayConfusionMatrix(df_cm):
@@ -17,7 +19,7 @@ def displayConfusionMatrix(df_cm):
 
 def displayCorrelationMatrix(pandasData, num_cols):
     dps = pd.DataFrame(pandasData, columns=num_cols)
-    axs = scatter_matrix(dps, alpha=0.2, figsize=(10, 10));
+    axs = scatter_matrix(pandasData, alpha=0.2, figsize=(10, 10));
     n = len(dps.columns)
     for i in range(n):
         v = axs[i, 0]

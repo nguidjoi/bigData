@@ -17,7 +17,8 @@ import numpy as np
 def evaluatePrediction(rfTransformed, evaluator):
     auroc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderROC"})
     auprc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderPR"})
-    return np.array([auroc,auprc])
+    tpr = evaluator.evaluate(rfTransformed, {evaluator.metricName: "truePositiveRate"})
+    return np.array([auroc,auprc,tpr])
 
 def evaluateLr(rfTransformed, evaluator, i):
     auroc = evaluator.evaluate(rfTransformed, {evaluator.metricName: "areaUnderROC"})
@@ -41,7 +42,7 @@ def initializePipeline(num_cols,cat_cols):
 
     labelindexers = [StringIndexer(inputCol="Churn", outputCol="label")]
     indexers = [StringIndexer(inputCol=column, outputCol=column + "_index") for column in cat_cols]
-    oneHotEncoder = [OneHotEncoderEstimator(inputCols=cat_cols_index, outputCols=cat_cols_hoted)]
+    oneHotEncoder = [OneHotEncoderEstimator(inputCols=cat_cols_index, outputCols=cat_cols_hoted, dropLast=False)]
     assembler = [VectorAssembler(inputCols=num_cols, outputCol=i + "_indexe") for i in num_cols]
     normalizers = [MinMaxScaler(inputCol=column + "_indexe", outputCol=column + "scaled") for column in num_cols]
     featureAssembler = [VectorAssembler(inputCols=featureCols, outputCol="features")]
